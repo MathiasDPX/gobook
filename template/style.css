@@ -38,6 +38,16 @@ body {
     flex: 1;
     padding: 3rem 2rem;
     box-sizing: border-box;
+
+    left: 25dvw;
+    height: 100%;
+    position: relative;
+}
+
+@media (max-width: 1024px) {
+    .content {
+        left: 0;
+    }
 }
 
 .content h1 {
@@ -48,6 +58,10 @@ body {
 .content p {
     font-size: 1rem;
     margin-bottom: 1rem;
+
+    width: 80ch;
+    white-space: normal;
+    overflow-wrap: break-word;
 }
 
 .content a {

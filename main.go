@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/goccy/go-yaml"
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/html"
 	"github.com/gomarkdown/markdown/parser"
@@ -18,6 +19,11 @@ type Page struct {
 	url     string
 	content string
 	kwargs  map[string]string
+}
+
+var Site struct {
+	Name     string `yaml:"name"`
+	Template string
 }
 
 func ProcessPages() []Page {
@@ -48,7 +54,6 @@ func ProcessPages() []Page {
 
 		for _, line := range lines {
 			part := strings.SplitN(line, ":", 2)
-			fmt.Println(part[0], part[1])
 			if len(part) == 2 {
 				result[part[0]] = strings.TrimSpace(part[1])
 			}
@@ -67,7 +72,7 @@ func ProcessPages() []Page {
 	return pages
 }
 
-func RenderPage(template string, page Page) string {
+func RenderPage(page Page) string {
 	extensions := parser.CommonExtensions | parser.AutoHeadingIDs | parser.NoEmptyLineBeforeBlock
 	p := parser.NewWithExtensions(extensions)
 	doc := p.Parse([]byte(page.content))
@@ -78,31 +83,34 @@ func RenderPage(template string, page Page) string {
 
 	html := string(markdown.Render(doc, renderer))
 
-	newTemplate := template
-	newTemplate = strings.Replace(newTemplate, "{% title %}", page.title, 1)
-	newTemplate = strings.Replace(newTemplate, "{% content %}", html, 1)
-	newTemplate = strings.Replace(newTemplate, "{% sidebar %}", "", 1)    // Empty for now
-	newTemplate = strings.Replace(newTemplate, "{% wiki_title %}", "", 1) // Empty for now
+	newTemplate := Site.Template
+	newTemplate = strings.Replace(newTemplate, "{% title %}", page.title, -1)
+	newTemplate = strings.Replace(newTemplate, "{% content %}", html, -1)
+	newTemplate = strings.Replace(newTemplate, "{% sidebar %}", "", -1)
+	newTemplate = strings.Replace(newTemplate, "{% wiki_title %}", Site.Name, -1)
 
 	return newTemplate
 }
 
 func main() {
-	pages := ProcessPages()
+	// Load templates
 	raw_template, err := os.ReadFile("template/index.html")
 
 	if err != nil {
 		log.Fatal("Unable to read template/index.html")
+	} else {
+		log.Println("Template loaded")
 	}
 
 	template := string(raw_template)
 
-	fmt.Printf("Loaded %d pages\n", len(pages))
+	// Load pages
+	pages := ProcessPages()
+	log.Printf("Loaded %d pages\n", len(pages))
 	for _, page := range pages {
-		// Capture the page variable in a closure to avoid the loop variable problem
 		func(p Page) {
 			http.HandleFunc("/"+p.url, func(w http.ResponseWriter, r *http.Request) {
-				fmt.Fprintln(w, RenderPage(template, p))
+				fmt.Fprintln(w, RenderPage(p))
 			})
 		}(page)
 	}
@@ -114,6 +122,19 @@ func main() {
 		fmt.Fprintln(w, string(content))
 	})
 
-	fmt.Println("Starting server on port 8080")
-	http.ListenAndServe(":8080", nil)
+	// Load site configuration
+	siteData, err := os.ReadFile("_site.yml")
+	if err != nil {
+		log.Fatal("Unable to read _site.yml:", err)
+	}
+
+	err = yaml.Unmarshal(siteData, &Site)
+	if err != nil {
+		log.Fatal("Unable to parse _site.yml:", err)
+	}
+
+	Site.Template = template
+
+	log.Println("Starting server on port 8080")
+	http.ListenAndServe("localhost:8080", nil)
 }
