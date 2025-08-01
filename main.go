@@ -42,6 +42,17 @@ func ProcessPages() []Page {
 		}
 		filecontent := string(rawcontent)
 
+		if match == "pages\\INDEX.md" {
+			page := Page{
+				title:   Site.Name,
+				url:     "",
+				content: filecontent,
+			}
+
+			pages = append(pages, page)
+			continue
+		}
+
 		parts := strings.SplitN(filecontent, "---", 3)
 		headers := parts[1]
 		headers = strings.TrimSpace(headers)
@@ -60,7 +71,7 @@ func ProcessPages() []Page {
 		}
 
 		page := Page{
-			title:   result["title"],
+			title:   result["title"] + " - " + Site.Name,
 			url:     strings.TrimSuffix(filepath.Base(match), ".md"),
 			content: content,
 			kwargs:  result,
@@ -104,6 +115,19 @@ func main() {
 
 	template := string(raw_template)
 
+	// Load site configuration
+	siteData, err := os.ReadFile("_site.yml")
+	if err != nil {
+		log.Fatal("Unable to read _site.yml:", err)
+	}
+
+	err = yaml.Unmarshal(siteData, &Site)
+	if err != nil {
+		log.Fatal("Unable to parse _site.yml:", err)
+	}
+
+	Site.Template = template
+
 	// Load pages
 	pages := ProcessPages()
 	log.Printf("Loaded %d pages\n", len(pages))
@@ -121,19 +145,6 @@ func main() {
 		w.Header().Set("Content-Type", "text/css")
 		fmt.Fprintln(w, string(content))
 	})
-
-	// Load site configuration
-	siteData, err := os.ReadFile("_site.yml")
-	if err != nil {
-		log.Fatal("Unable to read _site.yml:", err)
-	}
-
-	err = yaml.Unmarshal(siteData, &Site)
-	if err != nil {
-		log.Fatal("Unable to parse _site.yml:", err)
-	}
-
-	Site.Template = template
 
 	log.Println("Starting server on port 8080")
 	http.ListenAndServe("localhost:8080", nil)

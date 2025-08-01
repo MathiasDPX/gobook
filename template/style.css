@@ -1,7 +1,7 @@
 body {
     margin: 0;
     font-family: system-ui, sans-serif;
-    background-color: #1b1e28;
+    background-color: #161923;
     color: #d0d0e0;
     display: flex;
     height: 100vh;
@@ -9,7 +9,7 @@ body {
 
 .sidebar {
     width: 240px;
-    background-color: #242838;
+    background-color: #282D3F;
     padding: 1rem;
     box-sizing: border-box;
 }
@@ -74,6 +74,12 @@ body {
     transform: translateX(-50%);
     color: #7f869a;
     font-size: 1rem;
+}
+
+code {
+    font-size: 0.9em;
+    background-color: #1D1F21;
+    padding: 0.1em 0.3em;
 }
 
 @media (max-width: 1024px) {
