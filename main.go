@@ -24,6 +24,7 @@ type Page struct {
 var Site struct {
 	Name     string `yaml:"name"`
 	Template string
+	Sidebar  string
 }
 
 func ProcessPages() []Page {
@@ -50,6 +51,10 @@ func ProcessPages() []Page {
 			}
 
 			pages = append(pages, page)
+			continue
+		}
+
+		if match == "pages\\SUMMARY.md" {
 			continue
 		}
 
@@ -83,22 +88,27 @@ func ProcessPages() []Page {
 	return pages
 }
 
-func RenderPage(page Page) string {
+func RenderMarkdown(content string) string {
 	extensions := parser.CommonExtensions | parser.AutoHeadingIDs | parser.NoEmptyLineBeforeBlock
 	p := parser.NewWithExtensions(extensions)
-	doc := p.Parse([]byte(page.content))
+	doc := p.Parse([]byte(content))
 
 	htmlFlags := html.CommonFlags | html.HrefTargetBlank
 	opts := html.RendererOptions{Flags: htmlFlags}
 	renderer := html.NewRenderer(opts)
 
 	html := string(markdown.Render(doc, renderer))
+	return html
+}
+
+func RenderPage(page Page) string {
+	html := RenderMarkdown(page.content)
 
 	newTemplate := Site.Template
-	newTemplate = strings.Replace(newTemplate, "{% title %}", page.title, -1)
-	newTemplate = strings.Replace(newTemplate, "{% content %}", html, -1)
-	newTemplate = strings.Replace(newTemplate, "{% sidebar %}", "", -1)
-	newTemplate = strings.Replace(newTemplate, "{% wiki_title %}", Site.Name, -1)
+	newTemplate = strings.ReplaceAll(newTemplate, "{% title %}", page.title)
+	newTemplate = strings.ReplaceAll(newTemplate, "{% content %}", html)
+	newTemplate = strings.ReplaceAll(newTemplate, "{% wiki_title %}", Site.Name)
+	newTemplate = strings.ReplaceAll(newTemplate, "{% sidebar %}", Site.Sidebar)
 
 	return newTemplate
 }
@@ -114,6 +124,15 @@ func main() {
 	}
 
 	template := string(raw_template)
+
+	// Load sidebar
+	raw_sidebar, err := os.ReadFile("pages/SUMMARY.md")
+
+	if err != nil {
+		log.Fatal("Unable to load SUMMARY.md")
+	}
+
+	Site.Sidebar = RenderMarkdown(string(raw_sidebar))
 
 	// Load site configuration
 	siteData, err := os.ReadFile("_site.yml")
