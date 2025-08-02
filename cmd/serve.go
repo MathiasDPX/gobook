@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var addr string
 var serveCmd = &cobra.Command{
 	Use:   "serve",
 	Short: "Serve your book to a host",
@@ -33,11 +34,12 @@ var serveCmd = &cobra.Command{
 			fmt.Fprintln(w, pages.Site.Stylesheet)
 		})
 
-		log.Println("Starting server on :8080")
-		http.ListenAndServe(":8080", nil)
+		log.Println("Starting server on " + addr)
+		http.ListenAndServe(addr, nil)
 	},
 }
 
 func init() {
+	serveCmd.Flags().StringVarP(&addr, "addr", "a", "localhost:8080", "Address to use")
 	rootCmd.AddCommand(serveCmd)
 }
