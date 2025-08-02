@@ -2,6 +2,7 @@ package pages
 
 import (
 	"embed"
+	"fmt"
 	"io/fs"
 	"log"
 	"os"
@@ -47,7 +48,7 @@ func ProcessPages() []Page {
 				if r := recover(); r != nil {
 					fmt.Printf("Error while building %s! %v\n", filename, r)
 				}
-			}
+			}()
 
 			rawcontent, err := os.ReadFile(match)
 			if err != nil {
