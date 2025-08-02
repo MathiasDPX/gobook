@@ -1,6 +1,8 @@
 package pages
 
 import (
+	"embed"
+	"io/fs"
 	"log"
 	"os"
 	"path/filepath"
@@ -11,6 +13,9 @@ import (
 	"github.com/gomarkdown/markdown/html"
 	"github.com/gomarkdown/markdown/parser"
 )
+
+//go:embed template/*
+var embeddedTemplates embed.FS
 
 type Page struct {
 	Title   string
@@ -113,9 +118,25 @@ func RenderPage(page Page) string {
 	return newTemplate
 }
 
+func GetTemplateFS() (fs.FS, error) {
+	path := filepath.Join(".", "template")
+
+	if stat, err := os.Stat(path); err == nil && stat.IsDir() {
+		return os.DirFS(path), nil
+	}
+
+	return fs.Sub(embeddedTemplates, "template")
+}
+
 func Prebuild() {
 	// Load templates
-	raw_template, err := os.ReadFile("template/index.html")
+	template_fs, err := GetTemplateFS()
+
+	if err != nil {
+		log.Fatal("Unable to get template filesystem")
+	}
+
+	raw_template, err := fs.ReadFile(template_fs, "index.html")
 
 	if err != nil {
 		log.Fatal("Unable to read template/index.html")
@@ -153,7 +174,7 @@ func Prebuild() {
 	log.Printf("Loaded %d pages\n", len(pages))
 
 	// Stylesheet
-	content, err := os.ReadFile("template/style.css")
+	content, err := fs.ReadFile(template_fs, "style.css")
 
 	if err == nil {
 		Site.Stylesheet = string(content)
