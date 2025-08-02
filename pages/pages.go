@@ -118,6 +118,14 @@ func RenderPage(page Page) string {
 	return newTemplate
 }
 
+func GetHTMLFileName(page Page) string {
+	if page.URL == "" {
+		return "index.html"
+	}
+
+	return page.URL[1:] + ".html"
+}
+
 func GetTemplateFS() (fs.FS, error) {
 	path := filepath.Join(".", "template")
 
