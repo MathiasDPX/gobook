@@ -1,5 +1,8 @@
 [**Home**](/)
 
+**Introduction**
+- [Installation](intro-installation)
+
 **Commands Reference**
 - [gobook init](command-init)
 - [gobook init-template](command-init-template)
