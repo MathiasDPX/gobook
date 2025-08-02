@@ -3,7 +3,9 @@ name: GitHub Pages
 on:
   workflow_dispatch:
   push:
-    branches: [ "docs" ]
+    branches:
+      - main
+      - docs
   
 permissions:
   contents: read
