@@ -1,10 +1,11 @@
 package cmd
 
 import (
-	"gobook/pages"
 	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/MathiasDPX/gobook/pages"
 
 	"github.com/spf13/cobra"
 )

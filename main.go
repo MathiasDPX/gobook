@@ -1,7 +1,7 @@
 package main
 
 import (
-	"gobook/cmd"
+	"github.com/MathiasDPX/gobook/cmd"
 )
 
 func main() {

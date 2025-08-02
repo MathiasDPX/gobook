@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"gobook/pages"
+	"github.com/MathiasDPX/gobook/pages"
 
 	"github.com/spf13/cobra"
 )

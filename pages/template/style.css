@@ -16,7 +16,7 @@ body {
 
 .sidebar a {
     display: block;
-    color: #5dc0e7;
+    color: #d0d0e0;
     text-decoration: none;
     margin-bottom: 0.5rem;
 }
@@ -74,6 +74,13 @@ body {
     transform: translateX(-50%);
     color: #7f869a;
     font-size: 1rem;
+}
+
+pre:has(code) {
+    background-color: #1D1F21;
+    display: inline-block;
+    padding: 0.3em;
+    border-radius: 0.2em;
 }
 
 code {

@@ -2,9 +2,10 @@ package cmd
 
 import (
 	"fmt"
-	"gobook/pages"
 	"log"
 	"net/http"
+
+	"github.com/MathiasDPX/gobook/pages"
 
 	"github.com/spf13/cobra"
 )

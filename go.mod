@@ -1,4 +1,4 @@
-module gobook
+module github.com/MathiasDPX/gobook
 
 go 1.22.2
 

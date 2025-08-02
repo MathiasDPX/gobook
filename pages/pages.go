@@ -166,6 +166,7 @@ func Prebuild() {
 	}
 
 	Site.Sidebar = RenderMarkdown(string(raw_sidebar))
+	Site.Sidebar = strings.ReplaceAll(Site.Sidebar, "target=\"_blank\"", "")
 
 	// Load site configuration
 	siteData, err := os.ReadFile("_site.yml")
