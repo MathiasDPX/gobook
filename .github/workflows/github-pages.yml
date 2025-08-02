@@ -29,7 +29,7 @@ jobs:
         cache: false
 
     - name: Install gobook
-      run: go install github.com/MathiasDPX/gobook@{{ github.sha }}
+      run: go install github.com/MathiasDPX/gobook@${{ github.sha }}
 
     - name: Build site
       run: gobook build
