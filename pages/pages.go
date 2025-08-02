@@ -42,52 +42,60 @@ func ProcessPages() []Page {
 	var pages = []Page{}
 
 	for _, match := range matches {
-		rawcontent, err := os.ReadFile(match)
-		if err != nil {
-			continue
-		}
-		filecontent := string(rawcontent)
+		func(filename string) {
+			defer func() {
+				if r := recover(); r != nil {
+					fmt.Printf("Error while building %s! %v\n", filename, r)
+				}
+			}
 
-		if match == "pages\\INDEX.md" {
+			rawcontent, err := os.ReadFile(match)
+			if err != nil {
+				return
+			}
+			filecontent := string(rawcontent)
+
+			if match == "pages\\INDEX.md" {
+				page := Page{
+					Title:   Site.Name,
+					URL:     "",
+					Content: filecontent,
+				}
+
+				pages = append(pages, page)
+				return
+			}
+
+			if match == "pages\\SUMMARY.md" {
+				return
+			}
+
+			parts := strings.SplitN(filecontent, "---", 3)
+			headers := parts[1]
+			headers = strings.TrimSpace(headers)
+
+			content := parts[2]
+			content = strings.TrimSpace(content)
+
+			lines := strings.Split(headers, "\n")
+			result := make(map[string]string)
+
+			for _, line := range lines {
+				part := strings.SplitN(line, ":", 2)
+				if len(part) == 2 {
+					result[part[0]] = strings.TrimSpace(part[1])
+				}
+			}
+
 			page := Page{
-				Title:   Site.Name,
-				URL:     "",
-				Content: filecontent,
+				Title:   result["title"] + " - " + Site.Name,
+				URL:     strings.TrimSuffix(filepath.Base(match), ".md"),
+				Content: content,
+				Kwargs:  result,
 			}
 
 			pages = append(pages, page)
-			continue
-		}
-
-		if match == "pages\\SUMMARY.md" {
-			continue
-		}
-
-		parts := strings.SplitN(filecontent, "---", 3)
-		headers := parts[1]
-		headers = strings.TrimSpace(headers)
-
-		content := parts[2]
-		content = strings.TrimSpace(content)
-
-		lines := strings.Split(headers, "\n")
-		result := make(map[string]string)
-
-		for _, line := range lines {
-			part := strings.SplitN(line, ":", 2)
-			if len(part) == 2 {
-				result[part[0]] = strings.TrimSpace(part[1])
-			}
-		}
-
-		page := Page{
-			Title:   result["title"] + " - " + Site.Name,
-			URL:     strings.TrimSuffix(filepath.Base(match), ".md"),
-			Content: content,
-			Kwargs:  result,
-		}
-
-		pages = append(pages, page)
+		}(match)
 	}
 
 	return pages
