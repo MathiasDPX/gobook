@@ -56,7 +56,8 @@ func ProcessPages() []Page {
 			}
 			filecontent := string(rawcontent)
 
-			if match == "pages\\INDEX.md" {
+			_, file := filepath.Split(match)
+			if file == "INDEX.md" {
 				page := Page{
 					Title:   Site.Name,
 					URL:     "",
@@ -67,7 +68,7 @@ func ProcessPages() []Page {
 				return
 			}
 
-			if match == "pages\\SUMMARY.md" {
+			if file == "SUMMARY.md" {
 				return
 			}
 
@@ -132,7 +133,11 @@ func GetHTMLFileName(page Page) string {
 		return "index.html"
 	}
 
-	return page.URL[1:] + ".html"
+	if page.URL[0] == "/"[0] {
+		return page.URL[1:] + ".html"
+	} else {
+		return page.URL + ".html"
+	}
 }
 
 func GetEmbeddedTemplates() embed.FS {
