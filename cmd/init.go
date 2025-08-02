@@ -3,11 +3,12 @@ package cmd
 import (
 	"bufio"
 	"fmt"
-	"gobook/pages"
 	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"gobook/pages"
 
 	"github.com/spf13/cobra"
 )
@@ -19,12 +20,8 @@ func WriteFile(path string, content string) bool {
 	return err != nil
 }
 
-func CopyFile(source string, destination string) error {
-	filesys, err := pages.GetTemplateFS()
-
-	if err != nil {
-		return err
-	}
+func ExtractFileFromEmbed(source string, destination string) error {
+	filesys, err := fs.Sub(pages.GetEmbeddedTemplates(), "template")
 
 	data, err := fs.ReadFile(filesys, source)
 

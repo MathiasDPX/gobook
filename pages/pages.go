@@ -126,6 +126,10 @@ func GetHTMLFileName(page Page) string {
 	return page.URL[1:] + ".html"
 }
 
+func GetEmbeddedTemplates() embed.FS {
+	return embeddedTemplates
+}
+
 func GetTemplateFS() (fs.FS, error) {
 	path := filepath.Join(".", "template")
 
